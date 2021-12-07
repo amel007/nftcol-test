@@ -1,0 +1,170 @@
+{
+	"ABI version": 2,
+	"version": "2.1",
+	"header": ["time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"codeIndex","type":"cell"},
+				{"name":"codeData","type":"cell"},
+				{"name":"codeStorage","type":"cell"},
+				{"name":"codeMetadata","type":"cell"},
+				{"name":"fees","type":"uint8"},
+				{"name":"costMint","type":"uint128"},
+				{"name":"addrOwner","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "mintNft",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "deployMetadata",
+			"inputs": [
+				{"name":"name","type":"string"},
+				{"name":"description","type":"string"},
+				{"name":"dna","type":"string"},
+				{"components":[{"name":"_type","type":"string"},{"name":"value","type":"string"},{"name":"rarity","type":"uint8"}],"name":"attributes","type":"tuple[]"},
+				{"name":"chunks","type":"uint8"},
+				{"name":"mimeType","type":"string"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "deployBasis",
+			"inputs": [
+				{"name":"codeIndexBasis","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "destructBasis",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getInfo",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"totalMinted","type":"uint256"},
+				{"name":"maxTotalMinted","type":"uint256"},
+				{"name":"addrOwner","type":"address"}
+			]
+		},
+		{
+			"name": "resolveCodeHashMetadata",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"codeHashMetadata","type":"uint256"}
+			]
+		},
+		{
+			"name": "resolveMetadata",
+			"inputs": [
+				{"name":"addrRoot","type":"address"},
+				{"name":"id","type":"uint256"}
+			],
+			"outputs": [
+				{"name":"addrMetadata","type":"address"}
+			]
+		},
+		{
+			"name": "resolveCodeHashStorage",
+			"inputs": [
+				{"name":"addrAuthor","type":"address"}
+			],
+			"outputs": [
+				{"name":"codeHashStorage","type":"uint256"}
+			]
+		},
+		{
+			"name": "resolveStorage",
+			"inputs": [
+				{"name":"addrRoot","type":"address"},
+				{"name":"id","type":"uint256"},
+				{"name":"addrAuthor","type":"address"}
+			],
+			"outputs": [
+				{"name":"addrStorage","type":"address"}
+			]
+		},
+		{
+			"name": "resolveCodeHashIndex",
+			"inputs": [
+				{"name":"addrRoot","type":"address"},
+				{"name":"addrOwner","type":"address"}
+			],
+			"outputs": [
+				{"name":"codeHashIndex","type":"uint256"}
+			]
+		},
+		{
+			"name": "resolveIndex",
+			"inputs": [
+				{"name":"addrRoot","type":"address"},
+				{"name":"addrData","type":"address"},
+				{"name":"addrOwner","type":"address"}
+			],
+			"outputs": [
+				{"name":"addrIndex","type":"address"}
+			]
+		},
+		{
+			"name": "resolveCodeHashData",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"codeHashData","type":"uint256"}
+			]
+		},
+		{
+			"name": "resolveData",
+			"inputs": [
+				{"name":"addrRoot","type":"address"},
+				{"name":"id","type":"uint256"}
+			],
+			"outputs": [
+				{"name":"addrData","type":"address"}
+			]
+		},
+		{
+			"name": "_addrBasis",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_addrBasis","type":"address"}
+			]
+		}
+	],
+	"data": [
+	],
+	"events": [
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_codeData","type":"cell"},
+		{"name":"_codeIndex","type":"cell"},
+		{"name":"_codeStorage","type":"cell"},
+		{"name":"_codeMetadata","type":"cell"},
+		{"name":"_addrOwner","type":"address"},
+		{"name":"_totalMinted","type":"uint256"},
+		{"name":"_maxTotalMinted","type":"uint256"},
+		{"name":"_addrBasis","type":"address"},
+		{"name":"_fees","type":"uint8"},
+		{"name":"_costMint","type":"uint128"}
+	]
+}

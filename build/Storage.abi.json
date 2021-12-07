@@ -1,0 +1,62 @@
+{
+	"ABI version": 2,
+	"version": "2.1",
+	"header": ["time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"chunks","type":"uint8"},
+				{"name":"mimeType","type":"string"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "fillContent",
+			"inputs": [
+				{"name":"chankNumber","type":"uint8"},
+				{"name":"part","type":"bytes"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getInfo",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"id","type":"uint256"},
+				{"name":"addrRoot","type":"address"},
+				{"name":"addrAuthor","type":"address"},
+				{"name":"mimeType","type":"string"},
+				{"name":"content","type":"map(uint8,bytes)"}
+			]
+		},
+		{
+			"name": "_complete",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_complete","type":"bool"}
+			]
+		}
+	],
+	"data": [
+		{"key":1,"name":"_id","type":"uint256"}
+	],
+	"events": [
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_id","type":"uint256"},
+		{"name":"_addrRoot","type":"address"},
+		{"name":"_addrAuthor","type":"address"},
+		{"name":"_chunks","type":"uint8"},
+		{"name":"_mimeType","type":"string"},
+		{"name":"_content","type":"map(uint8,bytes)"},
+		{"name":"_complete","type":"bool"}
+	]
+}
