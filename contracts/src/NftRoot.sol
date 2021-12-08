@@ -17,7 +17,7 @@ import './interfaces/INftRoot.sol';
 
 contract NftRoot is DataResolver, IndexResolver, StorageResolver, MetadataResolver, INftRoot {
 
-    address _addrOwner;
+    address static _addrOwner;
     uint256 _totalMinted;
     uint256 _maxTotalMinted;
     address public _addrBasis;
@@ -27,7 +27,7 @@ contract NftRoot is DataResolver, IndexResolver, StorageResolver, MetadataResolv
 
 
     constructor(TvmCell codeIndex, TvmCell codeData, TvmCell codeStorage, TvmCell codeMetadata,
-        uint8 fees, uint128 costMint, address addrOwner) public {
+        uint8 fees, uint128 costMint) public {
         require(fees <= 40);
         tvm.accept();
         _codeIndex = codeIndex;
@@ -36,7 +36,6 @@ contract NftRoot is DataResolver, IndexResolver, StorageResolver, MetadataResolv
         _codeMetadata = codeMetadata;
         _fees = fees;
         _costMint = costMint;
-        _addrOwner = addrOwner;
     }
 
     function mintNft() public override {

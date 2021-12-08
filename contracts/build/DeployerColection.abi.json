@@ -1,0 +1,61 @@
+{
+	"ABI version": 2,
+	"version": "2.1",
+	"header": ["time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"codeNftRoot","type":"cell"},
+				{"name":"codeData","type":"cell"},
+				{"name":"codeMetadata","type":"cell"},
+				{"name":"codeStorage","type":"cell"},
+				{"name":"codeIndex","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "deployColection",
+			"inputs": [
+				{"name":"addrOwner","type":"address"},
+				{"name":"fees","type":"uint8"},
+				{"name":"costMint","type":"uint128"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getAddressColections",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"addreses","type":"address[]"}
+			]
+		},
+		{
+			"name": "resolveNftRoot",
+			"inputs": [
+				{"name":"addrOwner","type":"address"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		}
+	],
+	"data": [
+	],
+	"events": [
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_codeNftRoot","type":"cell"},
+		{"name":"_codeData","type":"cell"},
+		{"name":"_codeMetadata","type":"cell"},
+		{"name":"_codeStorage","type":"cell"},
+		{"name":"_codeIndex","type":"cell"},
+		{"name":"addressColections","type":"address[]"}
+	]
+}

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { exec } = require("child_process");
 
-let nameArr = ['Index','Data','IndexBasis','Metadata', 'NftRoot', 'Storage'];
+let nameArr = ['Index','Data','IndexBasis','Metadata', 'NftRoot', 'Storage', 'DeployerColection'];
 
 for (const item of nameArr) {
   exec(`tondev sol compile ./src/${item}.sol -o ./build/`, (error, stdout, stderr) => {

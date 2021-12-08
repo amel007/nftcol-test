@@ -1,6 +1,7 @@
-const { TonClient, abiContract, signerKeys } = require("@tonclient/core");
+const { TonClient, signerNone, abiContract, signerKeys } = require("@tonclient/core");
 const { libNode } = require("@tonclient/lib-node");
 const { Account } = require("@tonclient/appkit");
+const { DeployerColectionContract } = require("../ton-packages/DeployerColection.js");
 const { NftRootContract } = require("../ton-packages/NftRoot.js");
 const { DataContract } = require("../ton-packages/Data.js");
 const { IndexContract } = require("../ton-packages/Index.js");
@@ -9,7 +10,7 @@ const { StorageContract } = require("../ton-packages/Storage.js");
 const { GiverContract } = require("../ton-packages/Giver.js");
 const { SetcodeMultisigWalletContract } = require("../ton-packages/SetcodeMultisigWallet.js");
 const fs = require('fs');
-const pathJson = '../keys/NftRoot.json';
+const pathJson = '../keys/DeployerColection.json';
 
 const dotenv = require('dotenv').config();
 const networks = ["http://localhost",'net1.ton.dev','main.ton.dev','rustnet.ton.dev','https://gql.custler.net'];
@@ -28,128 +29,54 @@ async function logEvents(params, response_type) {
 
 async function main(client) {
   let response;
-  const SEED_PHRASE_WORD_COUNT = 12;
-  const SEED_PHRASE_DICTIONARY_ENGLISH = 1;
-  const HD_PATH = "m/44'/396'/0'/0/0";
-  const { crypto } = client;
-  const { phrase } = await crypto.mnemonic_from_random({
-    dictionary: SEED_PHRASE_DICTIONARY_ENGLISH,
-    word_count: SEED_PHRASE_WORD_COUNT,
-  });
-  console.log(`Generated seed phrase "${phrase}"`);
-  let keyPair = await crypto.mnemonic_derive_sign_keys({
-    phrase,
-    path: HD_PATH,
-    dictionary: SEED_PHRASE_DICTIONARY_ENGLISH,
-    word_count: SEED_PHRASE_WORD_COUNT,
-  });
-  const rootKeys = signerKeys(keyPair);
-  console.log(rootKeys);
 
-  const rootAcc = new Account(NftRootContract, {
-    signer: rootKeys,
+  const rootDeployerAddr = JSON.parse(fs.readFileSync(pathJson,{encoding: "utf8"})).address;
+  const rootDeployerKeys = JSON.parse(fs.readFileSync(pathJson,{encoding: "utf8"})).keys;
+
+  console.log("address of deployerCollection:", rootDeployerAddr);
+
+  const rootDeployerAcc = new Account(DeployerColectionContract, {
+    address:rootDeployerAddr,
+    signer: rootDeployerKeys,
     client,
   });
-  const address = await rootAcc.getAddress();
-  console.log(`Future address of the contract will be: ${address}`);
 
-  const deployMessage = await client.abi.encode_message(await rootAcc.getParamsOfDeployMessage({
-    initFunctionName:"constructor",
-    initInput:{
-      codeIndex:IndexContract.code,
-      codeData:DataContract.code,
-      codeStorage:StorageContract.code,
-      codeMetadata:MetadataContract.code,
-      fees:10,
-      costMint: 1000000000,
-      addrOwner: '0:835ebc5dc3b3370b77f15ecf4e62add730f67ef5605c9b2c976e38c0ec6ce3d6',
+
+  const giverNTDAddress = process.env.MAIN_GIVER_ADDRESS;
+  const giverNTDKeys = signerKeys({
+    public: process.env.MAIN_GIVER_PUBLIC,
+    secret: process.env.MAIN_GIVER_SECRET
+  });
+  const giverNTDAcc = new Account(SetcodeMultisigWalletContract, {address: giverNTDAddress,signer: giverNTDKeys,client,});
+
+  console.log("deploy Collection for:", giverNTDAddress);
+
+  const { body } = (await client.abi.encode_message_body({
+    abi: rootDeployerAcc.abi,
+    call_set: {
+      function_name: "deployColection",
+      input: {
+        addrOwner:giverNTDAddress,
+        fees:10,
+        costMint:1000000000,
+      },
     },
+    is_internal: true,
+    signer: signerNone(),
   }));
-  // const deployMessage = await client.abi.encode_message({
-  //   abi: rootAcc.abi,
-  //   deploy_set: {
-  //     tvc: NftRootContract.tvc,
-  //     initial_data: {}
-  //   },
-  //   // can be ommited here for address calculation
-  //   call_set: {
-  //     function_name: 'constructor',
-  //     input: {
-  //       codeIndex:IndexContract.code,
-  //       codeData:DataContract.code,
-  //       codeStorage:StorageContract.code,
-  //       codeMetadata:MetadataContract.code,
-  //       fees:10,
-  //       costMint: 1000000000,
-  //       addrOwner: '0:835ebc5dc3b3370b77f15ecf4e62add730f67ef5605c9b2c976e38c0ec6ce3d6'
-  //     }
-  //   },
-  //   signer: rootKeys
-  // });
 
-  // Seed phrase: "pelican begin hill vessel energy pledge remind month token clarify thrive season"
-  // Raw address: 0:0a3fcf4c8973bbbb1497c4ccf2cc8b140eb3103755c0133db36fe5dc6cc84461
+  console.log(body);
 
 
-    if (networkSelector == 0) {
-      const giver = await Account.getGiverForClient(client);
-      await giver.sendTo(address, 100_000_000_000);
-      console.log(`Grams were transferred from giver to ${address}`);
-    } else if (networkSelector == 1) {
-      const giverNTDAddress = JSON.parse(fs.readFileSync('../keys/GiverContractNTD.json',{encoding: "utf8"})).address;;
-      const giverNTDKeys = JSON.parse(fs.readFileSync('../keys/GiverContractNTD.json',{encoding: "utf8"})).keys;
-      const giverNTDAcc = new Account(GiverContract, {address: giverNTDAddress,signer: giverNTDKeys,client,});
-      // Call `sendTransaction` function
-      response = await giverNTDAcc.run("sendTransaction", {dest:address,value:1000000000,bounce:false});
-      console.log("Giver send 1 ton to address:", address, response.decoded.output);
-    } else if (networkSelector == 2){
-      console.log('Pls set giver for main.ton.dev');
-    } else if (networkSelector == 3){
-      const giverRTDAddress = JSON.parse(fs.readFileSync('./GiverContractRTD.json',{encoding: "utf8"})).address;;
-      const giverRTDKeys = JSON.parse(fs.readFileSync('./GiverContractRTD.json',{encoding: "utf8"})).keys;
-      const giverRTDAcc = new Account(GiverContract, {address: giverRTDAddress,signer: giverRTDKeys,client,});
-      // Call `sendTransaction` function
-      response = await giverRTDAcc.run("sendTransaction", {dest:rootAddr,value:1000000000,bounce:false});
-      console.log("Giver send 1 ton to rootAddr:", response.decoded.output);
-    } else if (networkSelector == 4){
-      const giverFLDAddress = JSON.parse(fs.readFileSync('./GiverContractFLD.json',{encoding: "utf8"})).address;;
-      const giverFLDKeys = JSON.parse(fs.readFileSync('./GiverContractFLD.json',{encoding: "utf8"})).keys;
-      const giverFLDAcc = new Account(GiverContract, {address: giverFLDAddress,signer: giverFLDKeys,client,});
-      // Call `sendTransaction` function
-      response = await giverFLDAcc.run("sendTransaction", {dest:rootAddr,value:1000000000,bounce:false});
-      console.log("Giver send 1 ton to rootAddr:", response.decoded.output);
-    } else {console.log('networkSelector is incorrect');}
+  response = await giverNTDAcc.run("sendTransaction", {
+    dest: rootDeployerAddr,
+    value: 1500000000,
+    bounce: true,
+    flags: 3,
+    payload: body,
+  });
 
-    const keyJson = JSON.stringify({address:address, keys:rootKeys, seed:phrase});
-    fs.writeFileSync( pathJson, keyJson,{flag:'w'});
-
-    console.log("Future address of the contract  and keys written successfully to:", pathJson);
-
-
-
-
-  let shard_block_id;
-  shard_block_id = (await client.processing.send_message({
-      message: deployMessage.message,
-      send_events: true,
-    }, logEvents,
-  )).shard_block_id;
-  console.log(`Deploy message was sent.`);
-
-  // Monitor message delivery.
-  // See more info about `wait_for_transaction` here
-  // https://github.com/tonlabs/TON-SDK/blob/master/docs/mod_processing.md#wait_for_transaction
-  const deploy_processing_result = await client.processing.wait_for_transaction({
-    abi: abiContract(rootAcc.abi),
-    message: deployMessage.message,
-    shard_block_id: shard_block_id,
-    send_events: true,
-  },
-  logEvents,
-  );
-  // console.log(`Deploy transaction: ${JSON.stringify(deploy_processing_result.transaction, null, 2)}`);
-  // console.log(`Deploy fees: ${JSON.stringify(deploy_processing_result.fees, null, 2)}`);
-  console.log(`Contract was deployed at address: ${address}`);
+  console.log("Deployed collection for owner address:", giverNTDAddress, response.decoded.output);
 
 }
 

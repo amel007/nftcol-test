@@ -8,7 +8,9 @@ const { MetadataContract } = require("../ton-packages/Metadata.js");
 const { StorageContract } = require("../ton-packages/Storage.js");
 const { GiverContract } = require("../ton-packages/Giver.js");
 const fs = require('fs');
-const pathJson = '../keys/NftRoot.json';
+const {DeployerColectionContract} = require("../ton-packages/DeployerColection.js");
+const {SetcodeMultisigWalletContract} = require("../ton-packages/SetcodeMultisigWallet.js");
+const pathJson = '../keys/DeployerColection.json';
 
 const dotenv = require('dotenv').config();
 const networks = ["http://localhost",'net1.ton.dev','main.ton.dev','rustnet.ton.dev','https://gql.custler.net'];
@@ -26,12 +28,32 @@ async function logEvents(params, response_type) {
 
 async function main(client) {
   let response;
-  const rootAddr = JSON.parse(fs.readFileSync(pathJson,{encoding: "utf8"})).address;
-  const rootKeys = JSON.parse(fs.readFileSync(pathJson,{encoding: "utf8"})).keys;
+  const rootDeployerAddr = JSON.parse(fs.readFileSync(pathJson,{encoding: "utf8"})).address;
+  const rootDeployerKeys = JSON.parse(fs.readFileSync(pathJson,{encoding: "utf8"})).keys;
+
+  const rootDeployerAcc = new Account(DeployerColectionContract, {
+    address:rootDeployerAddr,
+    signer: rootDeployerKeys,
+    client,
+  });
+
+  const giverNTDAddress = process.env.MAIN_GIVER_ADDRESS;
+  const giverNTDKeys = signerKeys({
+    public: process.env.MAIN_GIVER_PUBLIC,
+    secret: process.env.MAIN_GIVER_SECRET
+  });
+  const giverNTDAcc = new Account(SetcodeMultisigWalletContract, {address: giverNTDAddress,signer: giverNTDKeys,client,});
+
+  response = await rootDeployerAcc.runLocal("getAddressColections", {});
+  console.log("Contract reacted to your getAddressColections:", response.decoded.output);
+
+  response = await rootDeployerAcc.runLocal("resolveNftRoot", {addrOwner:giverNTDAddress});
+  console.log("Contract reacted to your resolveNftRoot:", response.decoded.output);
+
+  const rootAddr = response.decoded.output.value0;
 
   const rootAcc = new Account(NftRootContract, {
     address:rootAddr,
-    signer: rootKeys,
     client,
   });
 

@@ -11,8 +11,7 @@
 				{"name":"codeStorage","type":"cell"},
 				{"name":"codeMetadata","type":"cell"},
 				{"name":"fees","type":"uint8"},
-				{"name":"costMint","type":"uint128"},
-				{"name":"addrOwner","type":"address"}
+				{"name":"costMint","type":"uint128"}
 			],
 			"outputs": [
 			]
@@ -149,6 +148,7 @@
 		}
 	],
 	"data": [
+		{"key":1,"name":"_addrOwner","type":"address"}
 	],
 	"events": [
 	],

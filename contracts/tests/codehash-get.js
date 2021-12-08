@@ -7,10 +7,12 @@ const { IndexContract } = require("../ton-packages/Index.js");
 const { MetadataContract } = require("../ton-packages/Metadata.js");
 const { StorageContract } = require("../ton-packages/Storage.js");
 const { GiverContract } = require("../ton-packages/Giver.js");
-const pathJson = '../keys/NftRoot.json';
+const pathJson = '../keys/DeployerColection.json';
 
 const hex2ascii = require('hex2ascii');
 const fs = require('fs');
+const {DeployerColectionContract} = require("../ton-packages/DeployerColection.js");
+const {SetcodeMultisigWalletContract} = require("../ton-packages/SetcodeMultisigWallet.js");
 
 
 const dotenv = require('dotenv').config();
@@ -29,14 +31,33 @@ async function logEvents(params, response_type) {
 
 async function main(client) {
   let response;
-  // let codeHash = '0eb29db5c28c866311d20aa8f716d5922be0b4a42e0204888b37bb0ff525449b';
 
-  const rootAddr = JSON.parse(fs.readFileSync(pathJson,{encoding: "utf8"})).address;
-  const rootKeys = JSON.parse(fs.readFileSync(pathJson,{encoding: "utf8"})).keys;
+  const rootDeployerAddr = JSON.parse(fs.readFileSync(pathJson,{encoding: "utf8"})).address;
+  const rootDeployerKeys = JSON.parse(fs.readFileSync(pathJson,{encoding: "utf8"})).keys;
+
+  const rootDeployerAcc = new Account(DeployerColectionContract, {
+    address:rootDeployerAddr,
+    signer: rootDeployerKeys,
+    client,
+  });
+
+  const giverNTDAddress = process.env.MAIN_GIVER_ADDRESS;
+  const giverNTDKeys = signerKeys({
+    public: process.env.MAIN_GIVER_PUBLIC,
+    secret: process.env.MAIN_GIVER_SECRET
+  });
+  const giverNTDAcc = new Account(SetcodeMultisigWalletContract, {address: giverNTDAddress,signer: giverNTDKeys,client,});
+
+  response = await rootDeployerAcc.runLocal("getAddressColections", {});
+  console.log("Contract reacted to your getAddressColections:", response.decoded.output);
+
+  response = await rootDeployerAcc.runLocal("resolveNftRoot", {addrOwner:giverNTDAddress});
+  console.log("Contract reacted to your resolveNftRoot:", response.decoded.output);
+
+  const rootAddr = response.decoded.output.value0;
 
   const rootAcc = new Account(NftRootContract, {
     address:rootAddr,
-    signer: rootKeys,
     client,
   });
 
